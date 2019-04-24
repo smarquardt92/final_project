@@ -1,5 +1,6 @@
 # USAGE
-# python classify.py --model pokedex.model --labelbin lb.pickle --image examples/charmander_counter.png
+# python classify.py --model predict.model --labelbin lb.pickle --image fruit.png
+
 
 # import the necessary packages
 from keras.preprocessing.image import img_to_array
@@ -12,14 +13,16 @@ import cv2
 import os
 
 # construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-m", "--model", required=True,
-	help="path to trained model model")
-ap.add_argument("-l", "--labelbin", required=True,
-	help="path to label binarizer")
-ap.add_argument("-i", "--image", required=True,
-	help="path to input image")
-args = vars(ap.parse_args())
+def classifier (model, labelbin, image)
+	ap = argparse.ArgumentParser()
+	ap.add_argument("-m", model, required=True,
+		help="path to trained model model")
+	ap.add_argument("-l", labelbin, required=True,
+		help="path to label binarizer")
+	ap.add_argument("-i", image, required=True,
+		help="path to input image")
+	args = vars(ap.parse_args())
+	return args
 
 # load the image
 image = cv2.imread(args["image"])
@@ -47,10 +50,10 @@ label = lb.classes_[idx]
 # contains the predicted label text (obviously this makes the
 # assumption that you have named your testing image files this way)
 filename = args["image"][args["image"].rfind(os.path.sep) + 1:]
-correct = "correct" if filename.rfind(label) != -1 else "incorrect"
+# correct = "correct" if filename.rfind(label) != -1 else "incorrect"
 
 # build the label and draw the label on the image
-label = "{}: {:.2f}% ({})".format(label, proba[idx] * 100, correct)
+label = "{}: {:.2f}%".format(label, proba[idx] * 100)
 output = imutils.resize(output, width=400)
 cv2.putText(output, label, (10, 25),  cv2.FONT_HERSHEY_SIMPLEX,
 	0.7, (0, 255, 0), 2)

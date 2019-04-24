@@ -5,6 +5,7 @@
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import Adam
 from keras.preprocessing.image import img_to_array
+from keras.models import load_model
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.model_selection import train_test_split
 from pyimagesearch.smallervggnet import SmallerVGGNet
@@ -80,12 +81,15 @@ aug = ImageDataGenerator(rotation_range=25, width_shift_range=0.1,
 	horizontal_flip=True, fill_mode="nearest")
 
 # initialize the model
-print("[INFO] compiling model...")
-model = SmallerVGGNet.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0],
-	depth=IMAGE_DIMS[2], classes=len(lb.classes_))
-opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-	metrics=["accuracy"])
+# print("[INFO] compiling model...")
+# model = SmallerVGGNet.build(width=IMAGE_DIMS[1], height=IMAGE_DIMS[0],
+# 	depth=IMAGE_DIMS[2], classes=len(lb.classes_))
+# opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
+# model.compile(loss="categorical_crossentropy", optimizer=opt,
+# 	metrics=["accuracy"])
+
+# load model
+model = load_model(args["model"])
 
 # train the network
 print("[INFO] training network...")
@@ -93,7 +97,7 @@ H = model.fit_generator(
 	aug.flow(trainX, trainY, batch_size=BS),
 	validation_data=(testX, testY),
 	steps_per_epoch=len(trainX) // BS,
-	epochs=EPOCHS, verbose=1)
+	epochs=EPOCHS, initial_epoch=101, verbose=1)
 
 # save the model to disk
 print("[INFO] serializing network...")
