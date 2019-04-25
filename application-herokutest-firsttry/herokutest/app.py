@@ -1,12 +1,20 @@
 import os
 from flask import Flask, request, render_template, redirect, jsonify
-
+from flask_mysqldb import MySQL
+import pickle
+mysql = MySQL()
+from time import sleep
+from ML import classify
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads'
 
-@app.route('/')
-def index():
-    return render_template("index.html")
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Snowihop^9'
+app.config['MYSQL_DB'] = 'Recipes'
+app.config['MYSQL_HOST'] = 'localhost'
+#mysql.init_app(app)
+
+
+mysql = MySQL(app)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -18,19 +26,25 @@ def upload_file():
             # read the file
             file = request.files['file']
 
-            # read the filename, this is part of teh image file you uplaod
-            filename = file.filename
-
-            # Save the file to the uploads folder
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return "Image Saved!"
-
-    return render_template('index.html')
-
-
+            # read the filename, this is part of the image file you uplaod
+            filename = file.filename 
+            file.save(os.path.join("../uploads/", filename))
+            predict=classify.classifier(f"../uploads/{filename}")
+            print(predict)
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT * From allrecipes WHERE Ingredients LIKE '%Apple%'")
+            data = cur.fetchall()
+            
+           
+        
+            return render_template('index.html', object_list=data)
+            #other_data= jsonify({'data': 'data'})
     
-
-
+       
+    return render_template('index.html')  
+ 
+    
+            
 
 if __name__ == "__main__":
     app.run(debug=True)
